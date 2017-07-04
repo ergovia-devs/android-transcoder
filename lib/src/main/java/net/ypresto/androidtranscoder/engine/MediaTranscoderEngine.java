@@ -159,8 +159,17 @@ public class MediaTranscoderEngine {
         QueuedMuxer queuedMuxer = new QueuedMuxer(mMuxer, new QueuedMuxer.Listener() {
             @Override
             public void onDetermineOutputFormat() {
-                MediaFormatValidator.validateVideoOutputFormat(mVideoTrackTranscoder.getDeterminedFormat());
-                MediaFormatValidator.validateAudioOutputFormat(mAudioTrackTranscoder.getDeterminedFormat());
+                // If there is a video track, validate the output is correct.
+                MediaFormat videoFormat = mVideoTrackTranscoder.getDeterminedFormat();
+                if (videoFormat != null) {
+                    MediaFormatValidator.validateVideoOutputFormat(videoFormat);
+                }
+
+                // If there is an audio track, validate the output is correct.
+                MediaFormat audioFormat = mAudioTrackTranscoder.getDeterminedFormat();
+                if (audioFormat != null) {
+                    MediaFormatValidator.validateAudioOutputFormat(audioFormat);
+                }
             }
         });
 
@@ -170,14 +179,21 @@ public class MediaTranscoderEngine {
             mVideoTrackTranscoder = new VideoTrackTranscoder(mExtractor, trackResult.mVideoTrackIndex, videoOutputFormat, queuedMuxer);
         }
         mVideoTrackTranscoder.setup();
+
         if (audioOutputFormat == null) {
             mAudioTrackTranscoder = new PassThroughTrackTranscoder(mExtractor, trackResult.mAudioTrackIndex, queuedMuxer, QueuedMuxer.SampleType.AUDIO);
         } else {
             mAudioTrackTranscoder = new AudioTrackTranscoder(mExtractor, trackResult.mAudioTrackIndex, audioOutputFormat, queuedMuxer);
         }
         mAudioTrackTranscoder.setup();
-        mExtractor.selectTrack(trackResult.mVideoTrackIndex);
-        mExtractor.selectTrack(trackResult.mAudioTrackIndex);
+
+        if (trackResult.mVideoTrackIndex >= 0) {
+            mExtractor.selectTrack(trackResult.mVideoTrackIndex);
+        }
+
+        if (trackResult.mAudioTrackIndex >= 0) {
+            mExtractor.selectTrack(trackResult.mAudioTrackIndex);
+        }
     }
 
     private void runPipelines() {
