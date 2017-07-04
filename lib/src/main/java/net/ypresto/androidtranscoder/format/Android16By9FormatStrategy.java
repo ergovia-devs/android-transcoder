@@ -61,10 +61,6 @@ class Android16By9FormatStrategy implements MediaFormatStrategy {
         if (longer * 9 != shorter * 16) {
             throw new OutputFormatUnavailableException("This video is not 16:9, and is not able to transcode. (" + width + "x" + height + ")");
         }
-        if (shorter <= targetShorter) {
-            Log.d(TAG, "This video's height is less or equal to " + targetShorter + ", pass-through. (" + width + "x" + height + ")");
-            return null;
-        }
         MediaFormat format = MediaFormat.createVideoFormat("video/avc", outWidth, outHeight);
         // From Nexus 4 Camera in 720p
         format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoBitrate);
