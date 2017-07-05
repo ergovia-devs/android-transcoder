@@ -30,7 +30,8 @@ import java.util.List;
  */
 public class QueuedMuxer {
     private static final String TAG = "QueuedMuxer";
-    private static final int BUFFER_SIZE = 64 * 1024; // I have no idea whether this value is appropriate or not...
+    private static final int EXCLUDE_TRACK_INDEX = -1;
+    private static final int BUFFER_SIZE = 256 * 1024; // I have no idea whether this value is appropriate or not...
     private final MediaMuxer mMuxer;
     private final Listener mListener;
     private MediaFormat mVideoFormat;
@@ -51,10 +52,20 @@ public class QueuedMuxer {
         switch (sampleType) {
             case VIDEO:
                 mVideoFormat = format;
+                if(format == null) {
+                    // Tell the muxer we do not require video.
+                    mVideoTrackIndex = EXCLUDE_TRACK_INDEX;
+                }
                 break;
+
             case AUDIO:
                 mAudioFormat = format;
+                if(format == null) {
+                    // Tell the muxer we do not require audio.
+                    mAudioTrackIndex = EXCLUDE_TRACK_INDEX;
+                }
                 break;
+
             default:
                 throw new AssertionError();
         }
@@ -62,13 +73,23 @@ public class QueuedMuxer {
     }
 
     private void onSetOutputFormat() {
-        if (mVideoFormat == null || mAudioFormat == null) return;
+        // Wait until setOutputFormat has been called for both video and audio
+        if ((mVideoFormat == null && mVideoTrackIndex != EXCLUDE_TRACK_INDEX)
+            || (mAudioFormat == null && mAudioTrackIndex != EXCLUDE_TRACK_INDEX)) {
+            return;
+        }
         mListener.onDetermineOutputFormat();
 
-        mVideoTrackIndex = mMuxer.addTrack(mVideoFormat);
-        Log.v(TAG, "Added track #" + mVideoTrackIndex + " with " + mVideoFormat.getString(MediaFormat.KEY_MIME) + " to muxer");
-        mAudioTrackIndex = mMuxer.addTrack(mAudioFormat);
-        Log.v(TAG, "Added track #" + mAudioTrackIndex + " with " + mAudioFormat.getString(MediaFormat.KEY_MIME) + " to muxer");
+        if(mVideoFormat != null) {
+            mVideoTrackIndex = mMuxer.addTrack(mVideoFormat);
+            Log.v(TAG, "Added track #" + mVideoTrackIndex + " with " + mVideoFormat.getString(MediaFormat.KEY_MIME) + " to muxer");
+        }
+
+        if(mAudioFormat != null) {
+            mAudioTrackIndex = mMuxer.addTrack(mAudioFormat);
+            Log.v(TAG, "Added track #" + mAudioTrackIndex + " with " + mAudioFormat.getString(MediaFormat.KEY_MIME) + " to muxer");
+        }
+
         mMuxer.start();
         mStarted = true;
 
