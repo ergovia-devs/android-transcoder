@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 27
+    buildToolsVersion "28"
 
     defaultConfig {
         applicationId "net.ypresto.androidtranscoder.example"
-        minSdkVersion 18
-        targetSdkVersion 19
+        minSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }
