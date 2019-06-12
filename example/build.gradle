@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 19
     buildToolsVersion "28"
     aaptOptions {  
         cruncherEnabled = false  
@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "net.ypresto.androidtranscoder.example"
-        minSdkVersion 27
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
