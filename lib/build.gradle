@@ -12,7 +12,7 @@ apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "28.1.2"
+    buildToolsVersion "29.0.0"
 
     defaultConfig {
         minSdkVersion 27
